@@ -271,8 +271,20 @@
                                                     @case('transcribing')
                                                         <i class="fas fa-cog fa-spin mr-2"></i>Transcribing
                                                         @break
+                                                    @case('transcribed')
+                                                        <i class="fas fa-file-alt mr-2"></i>Transcribed
+                                                        @break
                                                     @case('completed')
                                                         <i class="fas fa-check mr-2"></i>Completed
+                                                        @break
+                                                    @case('rewriting')
+                                                        <i class="fas fa-pen-fancy fa-spin mr-2"></i>Rewriting
+                                                        @break
+                                                    @case('rewritten')
+                                                        <i class="fas fa-check-double mr-2"></i>Rewritten
+                                                        @break
+                                                    @case('rewrite_failed')
+                                                        <i class="fas fa-exclamation-triangle mr-2"></i>Rewrite Failed
                                                         @break
                                                     @case('failed')
                                                         <i class="fas fa-times mr-2"></i>Failed
@@ -298,13 +310,22 @@
                                                             <i class="fas fa-file-alt mr-2"></i>Transcribe
                                                         </button>
                                                     </form>
-                                @elseif ($video->status == 'completed')
+                                @elseif (in_array($video->status, ['completed', 'transcribed', 'rewritten', 'rewrite_failed']))
                                     <a href="{{ route('videos.download', $video) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
                                         <i class="fas fa-download mr-2"></i>Download
                                     </a>
                                     <a href="{{ route('videos.view', $video) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
                                         <i class="fas fa-eye mr-2"></i>View
                                     </a>
+                                    @if($video->transcript_path)
+                                    <form action="{{ route('videos.rewrite', $video) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                            <i class="fas fa-pen-fancy mr-2"></i>Rewrite
+                                        </button>
+                                    </form>
+                                    @endif
                                     <form action="{{ route('videos.delete', $video) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this video and its transcript?')">
                                         @csrf
                                         @method('DELETE')
@@ -344,7 +365,7 @@
     <!-- Auto-refresh for status updates -->
     <script>
         // Auto-refresh every 30 seconds if there are processing videos
-        const processingStatuses = ['pending', 'downloading_audio', 'transcribing'];
+        const processingStatuses = ['pending', 'downloading_audio', 'transcribing', 'rewriting'];
         const hasProcessingVideos = {{ $videos->whereIn('status', ['pending', 'downloading_audio', 'transcribing'])->count() > 0 ? 'true' : 'false' }};
         
         if (hasProcessingVideos) {

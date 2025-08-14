@@ -13,6 +13,8 @@ class Video extends Model
         'transcript',
         'transcript_path',
         'rewritten_script',
+        'rewritten_transcript_path',
+        'rewritten_at',
         'final_audio_path',
         'error_message',
     ];

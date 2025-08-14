@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\DownloadAudio;
+use App\Jobs\RewriteTranscript;
 use App\Jobs\TranscribeAudio;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class VideoController extends Controller
@@ -55,13 +57,30 @@ class VideoController extends Controller
         return redirect()->back()->with('success', 'Transcription process started! ⚡');
     }
 
+    public function rewrite(Video $video)
+    {
+        if (!$video->transcript_path) {
+            return redirect()->back()->with('error', 'An original transcript is required before rewriting.');
+        }
+
+        $video->update(['status' => 'rewriting']);
+
+        RewriteTranscript::dispatch($video);
+
+        return redirect()->back()->with('success', 'Rewrite process started! ✍️');
+    }
+
     public function view(Video $video)
     {
         if ($video->status !== 'completed' || !$video->transcript_path) {
             return redirect()->back()->with('error', 'Transcript is not available yet.');
         }
 
-        $transcript = Storage::get($video->transcript_path);
+        if (!File::exists($video->transcript_path)) {
+            return redirect()->back()->with('error', 'Transcript file not found.');
+        }
+
+        $transcript = File::get($video->transcript_path);
         
         return view('transcript.view', compact('video', 'transcript'));
     }
@@ -72,20 +91,24 @@ class VideoController extends Controller
             return redirect()->back()->with('error', 'Transcript is not available for download.');
         }
 
+        if (!File::exists($video->transcript_path)) {
+            return redirect()->back()->with('error', 'Transcript file not found.');
+        }
+
         $filename = 'transcript_' . $video->id . '_' . date('Y-m-d_H-i-s') . '.txt';
         
-        return Storage::download($video->transcript_path, $filename);
+        return response()->download($video->transcript_path, $filename);
     }
 
     public function delete(Video $video)
     {
         // Delete associated files
-        if ($video->audio_path && Storage::exists($video->audio_path)) {
-            Storage::delete($video->audio_path);
+        if ($video->audio_path && File::exists($video->audio_path)) {
+            File::delete($video->audio_path);
         }
         
-        if ($video->transcript_path && Storage::exists($video->transcript_path)) {
-            Storage::delete($video->transcript_path);
+        if ($video->transcript_path && File::exists($video->transcript_path)) {
+            File::delete($video->transcript_path);
         }
 
         $video->delete();
