@@ -80,8 +80,23 @@ class RewriteTranscript implements ShouldQueue
         $apiKey = env('GEMINI_API_KEY');
         $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={$apiKey}";
 
-        $prompt = "Rewrite the following text. Your goal is to rephrase the content, freshen up the language, and change the way the facts are presented, but you must keep the original meaning, logic, and all factual details completely intact. Do not add new information or remove any details. Format the output as clean, readable paragraphs.\n\nOriginal Text:\n---\n{$transcript}\n---\nRewritten Text:";
+        $prompt = "You are an expert YouTube scriptwriter for an informative channel. 
+            Rewrite the following transcript into a fresh, engaging, and easy-to-follow script 
+            while keeping every fact, detail, and logical flow intact.
 
+            - Use a friendly and conversational tone that sounds like a natural voiceover.
+            - Organize content into short, clear paragraphs.
+            - Use simple, direct language without jargon unless it’s explained.
+            - Avoid repeating phrases and remove filler words.
+            - Add smooth transitions between ideas so the script flows well.
+            - Keep the meaning 100% accurate to the original — do not add or remove facts.
+            - Make it sound engaging enough for a YouTube audience that wants to learn something new.
+
+            Original Text:
+            ---
+            {$transcript}
+            ---
+            Final YouTube Script:";
         return Http::timeout(180)->post($url, [
             'contents' => [
                 [

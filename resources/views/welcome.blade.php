@@ -311,17 +311,19 @@
                                                         </button>
                                                     </form>
                                 @elseif (in_array($video->status, ['completed', 'transcribed', 'rewritten', 'rewrite_failed']))
-                                    <a href="{{ route('videos.download', $video) }}" class="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                        <i class="fas fa-download mr-2"></i>Download
+                                    <a href="{{ route('videos.view', $video) }}" class="inline-flex items-center justify-center w-28 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                        <i class="fas fa-eye mr-2"></i>Original
                                     </a>
-                                    <a href="{{ route('videos.view', $video) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
-                                        <i class="fas fa-eye mr-2"></i>View
+                                    @if($video->status == 'rewritten')
+                                    <a href="{{ route('videos.viewFinal', $video) }}" class="inline-flex items-center justify-center w-28 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                        <i class="fas fa-file-alt mr-2"></i>Final
                                     </a>
+                                    @endif
                                     @if($video->transcript_path)
                                     <form action="{{ route('videos.rewrite', $video) }}" method="POST">
                                         @csrf
                                         <button type="submit" 
-                                                class="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                                class="inline-flex items-center justify-center w-28 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500">
                                             <i class="fas fa-pen-fancy mr-2"></i>Rewrite
                                         </button>
                                     </form>
@@ -329,7 +331,7 @@
                                     <form action="{{ route('videos.delete', $video) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this video and its transcript?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                        <button type="submit" class="inline-flex items-center justify-center w-28 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
                                             <i class="fas fa-trash mr-2"></i>Delete
                                         </button>
                                     </form>

@@ -85,6 +85,21 @@ class VideoController extends Controller
         return view('transcript.view', compact('video', 'transcript'));
     }
 
+    public function viewFinal(Video $video)
+    {
+        if ($video->status !== 'rewritten' || !$video->rewritten_transcript_path) {
+            return redirect()->back()->with('error', 'Rewritten transcript is not available yet.');
+        }
+
+        if (!File::exists($video->rewritten_transcript_path)) {
+            return redirect()->back()->with('error', 'Rewritten transcript file not found.');
+        }
+
+        $transcript = File::get($video->rewritten_transcript_path);
+        
+        return view('transcript.view_final', compact('video', 'transcript'));
+    }
+
     public function download(Video $video)
     {
         if ($video->status !== 'completed' || !$video->transcript_path) {
