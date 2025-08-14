@@ -11,8 +11,14 @@ class Video extends Model
         'status',
         'audio_path',
         'transcript',
+        'transcript_path',
         'rewritten_script',
         'final_audio_path',
         'error_message',
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 }
